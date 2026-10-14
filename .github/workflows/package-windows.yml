@@ -82,7 +82,10 @@ jobs:
       - name: Package
         if: ${{ inputs.publish_artifacts }}
         working-directory: src
-        run: ./contrib/packaging/windows/build_package.sh -o .. -z ''
+        run: |
+          ./contrib/packaging/windows/build_package.sh -o .. -z ''
+          # Remaster renderer material data, next to the D1 executable
+          if [ -d ../D1X-Rebirth ]; then cp -R d1x-rebirth/remaster ../D1X-Rebirth/; fi
 
       - name: Upload Artifact
         if: ${{ inputs.publish_artifacts }}
