@@ -84,6 +84,10 @@ bitmap_index piggy_register_bitmap(grs_bitmap &bmp, std::span<const char> name, 
 int piggy_register_sound(digi_sound &&snd, std::span<const char> name);
 bitmap_index piggy_find_bitmap(std::span<const char> name);
 void piggy_load_level_data();
+/* Remaster renderer: returns the PIG name of `bm` if it is an entry of
+ * GameBitmaps, otherwise nullptr.  Also reports its index through `out_index`.
+ */
+const char *piggy_game_bitmap_name(const grs_bitmap &bm, unsigned *out_index);
 
 #if DXX_BUILD_DESCENT == 1
 constexpr std::integral_constant<unsigned, 1800> MAX_BITMAP_FILES{};

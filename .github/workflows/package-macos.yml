@@ -105,7 +105,32 @@ jobs:
             fi
           done
 
+          # Remaster renderer: material data goes in the D1 bundle's Resources
+
+          if [ -d build/D1X-Rebirth.app ]; then
+            cp -R d1x-rebirth/remaster build/D1X-Rebirth.app/Contents/Resources/
+          fi
+
+          # Adding files breaks the bundle seal; re-sign ad hoc so Apple
+          # Silicon will launch it
+
+          for app in build/D{1,2}X-Rebirth.app; do
+            if [ -d "$app" ]; then
+              codesign --force --deep --sign - "$app"
+              codesign --verify --deep --strict "$app"
+            fi
+          done
+
           mv build/D{1,2}X-Rebirth.app ..
+
+          # Zip with ditto so the executable bit and signature survive the
+          # artifact upload
+
+          cd ..
+
+          for app in D{1,2}X-Rebirth.app; do
+            ditto -c -k --sequesterRsrc --keepParent "$app" "${app%.app}-macOS-${{ steps.architecture.outputs.uname_m }}.zip"
+          done
 
       - name: Upload SConf log
         if: ${{ !cancelled() }}
@@ -119,7 +144,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: "DXX-Rebirth-MacOS${{ env.MACOSX_DEPLOYMENT_TARGET }}-${{ steps.architecture.outputs.uname_m }}"
-          path: 'D*X-Rebirth.app'
+          path: 'D*X-Rebirth-macOS-*.zip'
 
       - name: Check header includes
         working-directory: src

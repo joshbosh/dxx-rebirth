@@ -63,6 +63,7 @@
 #endif
 
 #include "ogl_sync.h"
+#include "ogl_remaster.h"
 #include <memory>
 
 using std::min;
@@ -728,6 +729,7 @@ int gr_set_mode(screen_mode mode)
 
 	ogl_init_window(w,h);//platform specific code
 	ogl_extensions_init();
+	::dsx::ogl_remaster_init();
 	ogl_tune_for_current();
 	sync_helper.init(CGameArg.OglSyncMethod, CGameArg.OglSyncWait);
 

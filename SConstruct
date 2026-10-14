@@ -5340,6 +5340,7 @@ class DXXProgram(DXXCommon):
 	get_objects_similar_arch_ogl = DXXCommon.create_lazy_object_states_getter((LazyObjectState(sources=(
 'similar/arch/ogl/gr.cpp',
 'similar/arch/ogl/ogl.cpp',
+'similar/arch/ogl/ogl_remaster.cpp',
 ),
 		transform_target=_apply_target_name,
 	),

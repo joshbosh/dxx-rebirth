@@ -443,6 +443,20 @@ int piggy_register_sound(digi_sound &&snd, const std::span<const char> name)
 	return i;
 }
 
+const char *piggy_game_bitmap_name(const grs_bitmap &bm, unsigned *const out_index)
+{
+	const grs_bitmap *const first = &GameBitmaps.front();
+	const grs_bitmap *const p = &bm;
+	if (p < first || p >= first + GameBitmaps.size())
+		return nullptr;
+	const auto idx = static_cast<unsigned>(p - first);
+	if (idx == 0 || idx >= Num_bitmap_files)
+		return nullptr;
+	if (out_index)
+		*out_index = idx;
+	return AllBitmaps[bitmap_index{static_cast<uint16_t>(idx)}].name.data();
+}
+
 bitmap_index piggy_find_bitmap(const std::span<const char> entry_name)
 {
 	auto name = entry_name;

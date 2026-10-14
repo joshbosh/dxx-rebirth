@@ -66,6 +66,7 @@
 #include "d_levelstate.h"
 #include "d_zip.h"
 #include "partial_range.h"
+#include "ogl_remaster.h"
 
 #include <algorithm>
 #include <memory>
@@ -265,6 +266,7 @@ void ogl_smash_texture_list_internal(void){
 	circle_va.reset();
 	disk_va.reset();
 	secondary_lva = {};
+	::dsx::ogl_remaster_reset_textures();
 	range_for (auto &i, ogl_texture_list)
 	{
 		if (i.handle>0){
@@ -993,9 +995,12 @@ void _g3_draw_tmap(grs_canvas &canvas, const std::span<g3_draw_tmap_point *const
 	glColorPointer(4, GL_FLOAT, 0, color_array.flat.data());
 	if (tmap_drawer_ptr == draw_tmap) {
 		glTexCoordPointer(2, GL_FLOAT, 0, texcoord_array.flat.data());
+		::dsx::ogl_remaster_begin_textured(bm, ::dsx::remaster_draw::world);
 	}
 	
 	glDrawArrays(GL_TRIANGLE_FAN, 0, nv);
+	if (tmap_drawer_ptr == draw_tmap)
+		::dsx::ogl_remaster_end_textured();
 	
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_COLOR_ARRAY);
@@ -1086,7 +1091,9 @@ void _g3_draw_tmap_2(grs_canvas &canvas, const std::span<g3_draw_tmap_point *con
 	glVertexPointer(3, GL_FLOAT, 0, vertices.flat.data());
 	glColorPointer(4, GL_FLOAT, 0, color_array.flat.data());
 	glTexCoordPointer(2, GL_FLOAT, 0, texcoord_array.flat.data());
+	::dsx::ogl_remaster_begin_textured(bm, ::dsx::remaster_draw::world);
 	glDrawArrays(GL_TRIANGLE_FAN, 0, nv);
+	::dsx::ogl_remaster_end_textured();
 }
 
 /*
@@ -1169,7 +1176,9 @@ void g3_draw_bitmap(grs_canvas &canvas, const vms_vector &pos, const fix iwidth,
 	glVertexPointer(3, GL_FLOAT, 0, vertices.data());
 	glColorPointer(4, GL_FLOAT, 0, color_array.data());
 	glTexCoordPointer(2, GL_FLOAT, 0, texcoord_array.data());
+	::dsx::ogl_remaster_begin_textured(bm, ::dsx::remaster_draw::sprite);
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4); // Replaced GL_QUADS
+	::dsx::ogl_remaster_end_textured();
 }
 
 /*
@@ -1303,6 +1312,7 @@ void ogl_start_frame(grs_canvas &canvas)
 	glDepthFunc(GL_LEQUAL);
 
 	glClear(GL_DEPTH_BUFFER_BIT);
+	::dsx::ogl_remaster_begin_frame(canvas);
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_FRONT);
 
@@ -1413,6 +1423,9 @@ void ogl_stereo_frame(const bool left_eye, const int xoff)
 #endif
 
 void ogl_end_frame(void){
+	::dsx::ogl_remaster_end_frame();
+	/* The remaster pass may have moved the viewport; force a reset. */
+	last_width = last_height = ~0u;
 	OGL_VIEWPORT(0, 0, grd_curscreen->get_screen_width(), grd_curscreen->get_screen_height());
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();//clear matrix
@@ -1920,6 +1933,12 @@ void ogl_loadbmtexture_f(grs_bitmap &rbm, const opengl_texture_filter texfilt, b
 		{
 			con_printf(CON_URGENT, "error: insufficient space to decode %ux%hu bitmap.  Please report this as a bug.", bm_w, bm->bm_h);
 		}
+	}
+	if (::dsx::ogl_remaster_load_override(*bm, *bm->gltexture))
+	{
+		tex_set_size(*bm->gltexture);
+		r_texcount++;
+		return;
 	}
 	ogl_loadtexture(gr_palette, buf, 0, 0, *bm->gltexture, bm->get_flags(), 0, texfilt, texanis, edgepad);
 }
