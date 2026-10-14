@@ -29,6 +29,17 @@ classic renderer.
 4. First launch: right-click the app and choose **Open**, then **Open**
    again.  The build is not notarised, so macOS asks once.
 
+## Testing on Windows
+
+The same renderer runs on Windows; it is a quick way to check the look
+before setting up the Mac.
+
+1. Download **DXX-Rebirth-Windows-x86_64** from the build artifacts and
+   unzip.  Use the `D1X-Rebirth` folder.
+2. Put `descent.hog`, `descent.pig` and `d1x-hires.dxa` in that folder,
+   next to `d1x-rebirth.exe`.
+3. Run `d1x-rebirth.exe`.  Add `-window` for windowed mode.
+
 ## Building the hi-res pack
 
 The pack is generated from your own copy of the game data and is not

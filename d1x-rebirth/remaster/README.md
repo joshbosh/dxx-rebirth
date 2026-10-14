@@ -14,3 +14,9 @@ The remaster renderer reads, per PIG bitmap name (`#` replaced by `_`):
 - `<name>_emissive.png`: the red channel masks which texels glow
 
 Everything else in the `.material` files is ignored.
+
+## Where this folder goes
+
+Anywhere on the game's search path: next to `d1x-rebirth.exe` on Windows,
+in `D1X-Rebirth.app/Contents/Resources/` on macOS (the CI packages do both),
+or next to the binary on Linux.
